@@ -9,6 +9,7 @@ import (
 )
 
 var DB *sql.DB
+var err error
 
 const (
 	HOST     = "containers-us-west-176.railway.app"
@@ -23,7 +24,7 @@ func ConnectDB() *sql.DB {
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		HOST, PORT, USER, PASSWORD, DBNAME,
 	)
-	DB, err := sql.Open("postgres", connString)
+	DB, err = sql.Open("postgres", connString)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -23,6 +23,40 @@ input NewTodo {
   userId: String!
 }
 
+input signUpRequest {
+  username: String
+  firstName: String
+  lastName: String
+  email: String
+  password: String
+}
+
+type signUpResponse {
+  message: String
+  statusCode: Int
+}
+
+input login {
+  username: String!
+  password: String!
+}
+
+type loginResponse {
+  user: userInformation
+  authenticated: Boolean
+  message: String
+}
+
+type userInformation {
+  userId: String
+  username: String
+  firstName: String
+  lastName: String
+  JWT: String
+}
+
 type Mutation {
   createTodo(input: NewTodo!): Todo!
+  signUp(input: signUpRequest): signUpResponse
+  Login(input: login): loginResponse
 }
