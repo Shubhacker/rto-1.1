@@ -32,6 +32,11 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.Login) (*mode
 	return logic.Login(ctx, input)
 }
 
+// SubmitReport is the resolver for the submitReport field.
+func (r *mutationResolver) SubmitReport(ctx context.Context, input *model.SubmitReportRequest) (*model.ReportResponse, error) {
+	panic(fmt.Errorf("not implemented: SubmitReport - submitReport"))
+}
+
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: Todos - todos"))
