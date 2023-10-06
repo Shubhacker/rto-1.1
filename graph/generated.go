@@ -46,9 +46,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Login      func(childComplexity int, input *model.Login) int
-		SignUp     func(childComplexity int, input *model.SignUpRequest) int
+		CreateTodo   func(childComplexity int, input model.NewTodo) int
+		Login        func(childComplexity int, input *model.Login) int
+		SignUp       func(childComplexity int, input *model.SignUpRequest) int
+		SubmitReport func(childComplexity int, input *model.SubmitReportRequest) int
 	}
 
 	Query struct {
@@ -73,6 +74,11 @@ type ComplexityRoot struct {
 		User          func(childComplexity int) int
 	}
 
+	ReportResponse struct {
+		Message  func(childComplexity int) int
+		ReportID func(childComplexity int) int
+	}
+
 	SignUpResponse struct {
 		Message    func(childComplexity int) int
 		StatusCode func(childComplexity int) int
@@ -91,6 +97,7 @@ type MutationResolver interface {
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 	SignUp(ctx context.Context, input *model.SignUpRequest) (*model.SignUpResponse, error)
 	Login(ctx context.Context, input *model.Login) (*model.LoginResponse, error)
+	SubmitReport(ctx context.Context, input *model.SubmitReportRequest) (*model.ReportResponse, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*model.Todo, error)
@@ -146,6 +153,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SignUp(childComplexity, args["input"].(*model.SignUpRequest)), true
+
+	case "Mutation.submitReport":
+		if e.complexity.Mutation.SubmitReport == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_submitReport_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SubmitReport(childComplexity, args["input"].(*model.SubmitReportRequest)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -217,6 +236,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.LoginResponse.User(childComplexity), true
 
+	case "reportResponse.message":
+		if e.complexity.ReportResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.ReportResponse.Message(childComplexity), true
+
+	case "reportResponse.reportId":
+		if e.complexity.ReportResponse.ReportID == nil {
+			break
+		}
+
+		return e.complexity.ReportResponse.ReportID(childComplexity), true
+
 	case "signUpResponse.message":
 		if e.complexity.SignUpResponse.Message == nil {
 			break
@@ -277,6 +310,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputlogin,
 		ec.unmarshalInputsignUpRequest,
+		ec.unmarshalInputsubmitReportRequest,
 	)
 	first := true
 
@@ -430,6 +464,21 @@ func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawA
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOsignUpRequest2ᚖrtoᚋgraphᚋmodelᚐSignUpRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_submitReport_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.SubmitReportRequest
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOsubmitReportRequest2ᚖrtoᚋgraphᚋmodelᚐSubmitReportRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -668,6 +717,64 @@ func (ec *executionContext) fieldContext_Mutation_Login(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_Login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_submitReport(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_submitReport(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SubmitReport(rctx, fc.Args["input"].(*model.SubmitReportRequest))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ReportResponse)
+	fc.Result = res
+	return ec.marshalOreportResponse2ᚖrtoᚋgraphᚋmodelᚐReportResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_submitReport(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "reportId":
+				return ec.fieldContext_reportResponse_reportId(ctx, field)
+			case "message":
+				return ec.fieldContext_reportResponse_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type reportResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_submitReport_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3031,6 +3138,88 @@ func (ec *executionContext) fieldContext_loginResponse_message(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _reportResponse_reportId(ctx context.Context, field graphql.CollectedField, obj *model.ReportResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_reportResponse_reportId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReportID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_reportResponse_reportId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "reportResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _reportResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.ReportResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_reportResponse_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_reportResponse_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "reportResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _signUpResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.SignUpResponse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_signUpResponse_message(ctx, field)
 	if err != nil {
@@ -3463,6 +3652,98 @@ func (ec *executionContext) unmarshalInputsignUpRequest(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputsubmitReportRequest(ctx context.Context, obj interface{}) (model.SubmitReportRequest, error) {
+	var it model.SubmitReportRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"imageUrl", "locations", "offense", "ByRTO", "Social", "Comment", "reportedBy", "vehicleNumber"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "imageUrl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageUrl"))
+			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageURL = data
+		case "locations":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locations"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locations = data
+		case "offense":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offense"))
+			data, err := ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Offense = data
+		case "ByRTO":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ByRTO"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ByRto = data
+		case "Social":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Social"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Social = data
+		case "Comment":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Comment"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Comment = data
+		case "reportedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reportedBy"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ReportedBy = data
+		case "vehicleNumber":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vehicleNumber"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VehicleNumber = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3504,6 +3785,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "Login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_Login(ctx, field)
+			})
+		case "submitReport":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_submitReport(ctx, field)
 			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4060,6 +4345,44 @@ func (ec *executionContext) _loginResponse(ctx context.Context, sel ast.Selectio
 	return out
 }
 
+var reportResponseImplementors = []string{"reportResponse"}
+
+func (ec *executionContext) _reportResponse(ctx context.Context, sel ast.SelectionSet, obj *model.ReportResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, reportResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("reportResponse")
+		case "reportId":
+			out.Values[i] = ec._reportResponse_reportId(ctx, field, obj)
+		case "message":
+			out.Values[i] = ec._reportResponse_message(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var signUpResponseImplementors = []string{"signUpResponse"}
 
 func (ec *executionContext) _signUpResponse(ctx context.Context, sel ast.SelectionSet, obj *model.SignUpResponse) graphql.Marshaler {
@@ -4559,6 +4882,38 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
+func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -4792,6 +5147,13 @@ func (ec *executionContext) marshalOloginResponse2ᚖrtoᚋgraphᚋmodelᚐLogin
 	return ec._loginResponse(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOreportResponse2ᚖrtoᚋgraphᚋmodelᚐReportResponse(ctx context.Context, sel ast.SelectionSet, v *model.ReportResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._reportResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOsignUpRequest2ᚖrtoᚋgraphᚋmodelᚐSignUpRequest(ctx context.Context, v interface{}) (*model.SignUpRequest, error) {
 	if v == nil {
 		return nil, nil
@@ -4805,6 +5167,14 @@ func (ec *executionContext) marshalOsignUpResponse2ᚖrtoᚋgraphᚋmodelᚐSign
 		return graphql.Null
 	}
 	return ec._signUpResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOsubmitReportRequest2ᚖrtoᚋgraphᚋmodelᚐSubmitReportRequest(ctx context.Context, v interface{}) (*model.SubmitReportRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputsubmitReportRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOuserInformation2ᚖrtoᚋgraphᚋmodelᚐUserInformation(ctx context.Context, sel ast.SelectionSet, v *model.UserInformation) graphql.Marshaler {

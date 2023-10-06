@@ -34,6 +34,11 @@ func Login(ctx context.Context, input *model.Login) (*model.LoginResponse, error
 	user.LastName = &userInfo.LastName
 	user.UserID = &userInfo.UserId
 	user.Username = &userInfo.UserName
+	JWT, err := GenerateToken(&userInfo)
+	if err != nil {
+		return &response, err
+	}
+	user.Jwt = JWT
 
 	response.Message = &msg
 	response.User = &user

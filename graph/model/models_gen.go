@@ -30,6 +30,11 @@ type LoginResponse struct {
 	Message       *string          `json:"message,omitempty"`
 }
 
+type ReportResponse struct {
+	ReportID *string `json:"reportId,omitempty"`
+	Message  *string `json:"message,omitempty"`
+}
+
 type SignUpRequest struct {
 	Username  *string `json:"username,omitempty"`
 	FirstName *string `json:"firstName,omitempty"`
@@ -41,6 +46,17 @@ type SignUpRequest struct {
 type SignUpResponse struct {
 	Message    *string `json:"message,omitempty"`
 	StatusCode *int    `json:"statusCode,omitempty"`
+}
+
+type SubmitReportRequest struct {
+	ImageURL      []*string `json:"imageUrl,omitempty"`
+	Locations     *string   `json:"locations,omitempty"`
+	Offense       []*string `json:"offense,omitempty"`
+	ByRto         *bool     `json:"ByRTO,omitempty"`
+	Social        *bool     `json:"Social,omitempty"`
+	Comment       *string   `json:"Comment,omitempty"`
+	ReportedBy    *string   `json:"reportedBy,omitempty"`
+	VehicleNumber *string   `json:"vehicleNumber,omitempty"`
 }
 
 type UserInformation struct {
