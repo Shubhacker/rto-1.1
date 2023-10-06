@@ -2,11 +2,13 @@ package logic
 
 import (
 	"context"
+	"log"
 	"rto/database"
 	"rto/graph/model"
 )
 
 func Login(ctx context.Context, input *model.Login) (*model.LoginResponse, error) {
+	log.Println("Login API called")
 	var response model.LoginResponse
 	var authenticated bool
 	var user model.UserInformation
